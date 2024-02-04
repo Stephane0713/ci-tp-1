@@ -1,4 +1,4 @@
-import { calculateAge } from "./module";
+import { calculateAge } from "../helpers/calculateAge";
 
 describe("calculeAge Unit Test Suites", () => {
   it("should return a correct age", () => {
