@@ -1,92 +1,112 @@
-import React, { useState } from "react";
-import { isValidName } from "../helpers/validation";
+import React, { createRef, useContext, useRef, useState } from "react";
+import {
+  isValidDate,
+  isValidEmail,
+  isValidName,
+  isValidZipCode,
+} from "../helpers/validation";
+import { toSnakeCase } from "../helpers/toSnakeCase";
+import { ToastContext } from "./Toast";
 
-function useField(validationFn, initialValue = "") {
-  const [value, setValue] = useState(initialValue);
-  const [error, hasError] = useState(false);
+/**
+ * Form Component - A simple form component using the TextField and useField hook.
+ *
+ * @component
+ * @returns {JSX.Element} - The rendered Form component.
+ */
+export default function Form() {
+  const lastNameRef = useRef();
+  const firstNameRef = useRef();
+  const emailRef = useRef();
+  const birthRef = useRef();
+  const cityRef = useRef();
+  const zipRef = useRef();
 
-  const validate = () => {
-    hasError(!validationFn(value));
+  const toast = useContext(ToastContext);
+
+  // const [toast, setToast] = useState({
+  //   type: null,
+  //   message: null,
+  //   isVisible: false,
+  // });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      // !isValidZipCode(zipRef.current.value) ||
+      // !isValidName(cityRef.current.value) ||
+      // !isValidDate(birthRef.current.value) ||
+      // !isValidEmail(emailRef.current.value) ||
+      !isValidName(firstNameRef.current.value) ||
+      !isValidName(lastNameRef.current.value)
+    ) {
+      toast("Une erreur s'est produite", "error");
+      return;
+    }
+    toast("Le compte a bien été enregistré");
   };
 
-  return { value, setValue, error, validate };
-}
-
-export default function Form() {
-  const lastNameRegister = useField(isValidName);
-
   return (
-    <div
-      style={{
-        background: "#EEE",
-        padding: "1rem",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "2rem",
-          marginBottom: "2rem",
-        }}
-      >
+    <div className="max-w-5xl p-2 w-full">
+      <h2 className="mb-8 text-2xl text-gray-900 text-center">
         Créer un compte
       </h2>
       <form
         action="."
         method="POST"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
+        onSubmit={handleSubmit}
+        className="border-b border-gray-900/10 p-12 pb-24 shadow-sm rounded-sm space-y-4 flex flex-col"
       >
         <TextField
-          {...lastNameRegister}
+          ref={lastNameRef}
           label="Nom"
-          message={lastNameRegister.error ? "Nom invalide" : ""}
+          {...(lastNameRef.current && {
+            message: !isValidName(lastNameRef.current.value)
+              ? "Le nom est invalide"
+              : "",
+          })}
         />
+        <TextField
+          ref={firstNameRef}
+          label="Prénom"
+          {...(firstNameRef.current && {
+            message: !isValidName(firstNameRef.current.value)
+              ? "Le prénom est invalide"
+              : "",
+          })}
+        />
+
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-500 text-white ease-in duration-100 text-sm font-semibold px-4 py-2 rounded-sm"
+        >
+          Confirmer
+        </button>
       </form>
     </div>
   );
 }
 
-function TextField({
-  label,
-  value,
-  setValue,
-  validate,
-  message = null,
-  ...props
-}) {
+const TextField = React.forwardRef(({ label, message = "" }, ref) => {
+  const formattedLabel = toSnakeCase(label);
+
   return (
-    <div
-      style={{
-        textAlign: "left",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div>
       <label
-        style={{
-          marginBottom: "1rem",
-          display: "inline-block",
-          fontWeight: "700",
-        }}
-        htmlFor="label"
+        htmlFor={formattedLabel}
+        className="block font-semibold leading-6 text-gray-900 mb-2"
       >
         {label}
       </label>
       <input
-        id={label}
-        {...props}
+        data-testid={formattedLabel}
         type="text"
-        style={{
-          padding: ".75rem 1rem",
-        }}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={validate}
+        id={formattedLabel}
+        ref={ref}
+        className="block w-full rounded-sm border-0 py-1.5 px-4 text-sm ring-1 ring-inset ring-gray-400"
       />
-      <p style={{ color: "red", fontSize: "0.75rem" }}>{message}</p>
+      {message !== "" && <div className="text-xs text-red-600">{message}</div>}
     </div>
   );
-}
+});

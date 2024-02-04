@@ -1,8 +1,8 @@
 /**
  * Calculate a person's age in years.
  *
- * @param {object} p
- * @return {number}
+ * @param {object} p An object representing a person with a bith property
+ * @returns {number} The age of the person
  */
 
 export function calculateAge(p) {
