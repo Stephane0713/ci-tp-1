@@ -2,7 +2,7 @@
  * Regular expression for validating names.
  * @type {RegExp}
  */
-const REGEX_NAME = /^[A-Za-zÀ-ÿ\-]{2,}$/g;
+const REGEX_NAME = /^[A-Za-zÀ-ÿ-]{2,}$/g;
 
 /**
  * Regular expression for validating email addresses.

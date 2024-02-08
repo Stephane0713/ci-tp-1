@@ -1,5 +1,6 @@
-import React, { createRef, useContext, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
+  isMajor,
   isValidDate,
   isValidEmail,
   isValidName,
@@ -7,6 +8,18 @@ import {
 } from "../helpers/validation";
 import { toSnakeCase } from "../helpers/toSnakeCase";
 import { ToastContext } from "./Toast";
+import { calculateAge } from "../helpers/calculateAge";
+
+function useField(validationFn, initialValue = "") {
+  const [value, setValue] = useState(initialValue);
+  const [hasError, setError] = useState(false);
+
+  const validate = () => {
+    setError(!validationFn(value));
+  };
+
+  return { value, setValue, hasError, validate };
+}
 
 /**
  * Form Component - A simple form component using the TextField and useField hook.
@@ -15,36 +28,56 @@ import { ToastContext } from "./Toast";
  * @returns {JSX.Element} - The rendered Form component.
  */
 export default function Form() {
-  const lastNameRef = useRef();
-  const firstNameRef = useRef();
-  const emailRef = useRef();
-  const birthRef = useRef();
-  const cityRef = useRef();
-  const zipRef = useRef();
+  const fields = [
+    { label: "Nom", field: useField(isValidName) },
+    { label: "Prénom", field: useField(isValidName) },
+    { label: "Email", field: useField(isValidEmail) },
+    {
+      label: "Date de naissance",
+      field: useField(
+        (v) => isValidDate(v) && isMajor(calculateAge({ birth: new Date(v) }))
+      ),
+    },
+    { label: "Ville", field: useField(isValidName) },
+    { label: "Code postal", field: useField(isValidZipCode) },
+  ];
+
+  const canSubmit = () => {
+    return (
+      !fields.filter(({ field }) => {
+        return field.value === "";
+      }).length > 0
+    );
+  };
+
+  const hasErrors = () => {
+    return (
+      fields.filter(({ field }) => {
+        return field.hasError;
+      }).length > 0
+    );
+  };
 
   const toast = useContext(ToastContext);
-
-  // const [toast, setToast] = useState({
-  //   type: null,
-  //   message: null,
-  //   isVisible: false,
-  // });
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (
-      // !isValidZipCode(zipRef.current.value) ||
-      // !isValidName(cityRef.current.value) ||
-      // !isValidDate(birthRef.current.value) ||
-      // !isValidEmail(emailRef.current.value) ||
-      !isValidName(firstNameRef.current.value) ||
-      !isValidName(lastNameRef.current.value)
-    ) {
-      toast("Une erreur s'est produite", "error");
+    if (!hasErrors()) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          fields.reduce((acc, val, idx) => {
+            const key = toSnakeCase(val.label);
+            const fieldValue = val.field.value;
+            return { ...acc, [key]: fieldValue };
+          }, {})
+        )
+      );
+      toast("Le compte a bien été enregistré");
       return;
     }
-    toast("Le compte a bien été enregistré");
+    toast("Une erreur s'est produite", "error");
   };
 
   return (
@@ -56,30 +89,27 @@ export default function Form() {
         action="."
         method="POST"
         onSubmit={handleSubmit}
-        className="border-b border-gray-900/10 p-12 pb-24 shadow-sm rounded-sm space-y-4 flex flex-col"
+        className="border-b border-gray-900/10 p-12 pb-24 shadow-sm rounded-sm  gap-4 flex flex-col"
       >
-        <TextField
-          ref={lastNameRef}
-          label="Nom"
-          {...(lastNameRef.current && {
-            message: !isValidName(lastNameRef.current.value)
-              ? "Le nom est invalide"
-              : "",
-          })}
-        />
-        <TextField
-          ref={firstNameRef}
-          label="Prénom"
-          {...(firstNameRef.current && {
-            message: !isValidName(firstNameRef.current.value)
-              ? "Le prénom est invalide"
-              : "",
-          })}
-        />
+        {fields.map(({ label, field }) => (
+          <TextField
+            key={label}
+            label={label}
+            value={field.value}
+            {...{
+              message: field.hasError ? "Champ invalide" : "",
+            }}
+            onChange={(e) => {
+              field.setValue(e.target.value);
+            }}
+            onBlur={() => field.validate()}
+          />
+        ))}
 
         <button
+          disabled={!canSubmit()}
           type="submit"
-          className="bg-blue-600 hover:bg-blue-500 text-white ease-in duration-100 text-sm font-semibold px-4 py-2 rounded-sm"
+          className=" disabled:bg-gray-400 enabled:bg-blue-600 enabled:hover:bg-blue-500 mt-6  text-white ease-in duration-100 text-sm font-semibold px-4 py-2 rounded-sm"
         >
           Confirmer
         </button>
@@ -88,7 +118,7 @@ export default function Form() {
   );
 }
 
-const TextField = React.forwardRef(({ label, message = "" }, ref) => {
+const TextField = ({ label, message = "", ...inputProps }) => {
   const formattedLabel = toSnakeCase(label);
 
   return (
@@ -100,13 +130,13 @@ const TextField = React.forwardRef(({ label, message = "" }, ref) => {
         {label}
       </label>
       <input
+        {...inputProps}
         data-testid={formattedLabel}
         type="text"
         id={formattedLabel}
-        ref={ref}
         className="block w-full rounded-sm border-0 py-1.5 px-4 text-sm ring-1 ring-inset ring-gray-400"
       />
       {message !== "" && <div className="text-xs text-red-600">{message}</div>}
     </div>
   );
-});
+};
