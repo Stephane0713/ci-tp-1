@@ -8,14 +8,16 @@ import React, { createContext, useState } from "react";
 export const ToastContext = createContext();
 
 /**
- * Provides a context for managing and displaying toast messages in the application.
+ * Custom hook for managing toast messages.
  *
- * @component
- * @param {Object} props - The properties of the ToastProvider component.
- * @param {React.ReactNode} props.children - The child components to be wrapped by the provider.
- * @returns {JSX.Element} The ToastProvider component.
+ * @returns {{
+ *   toast: Function,
+ *   type: string | undefined,
+ *   isVisible: boolean | undefined,
+ *   message: string | undefined
+ * }} Returns an object containing the toast function and its related state.
  */
-export function ToastProvider({ children }) {
+export function useToast() {
   const [type, setType] = useState();
   const [message, setMessage] = useState();
   const [isVisible, setVisible] = useState();
@@ -27,7 +29,19 @@ export function ToastProvider({ children }) {
 
     setTimeout(() => setVisible(false), 5000);
   };
+  return { toast, type, isVisible, message };
+}
 
+/**
+ * Provides a context for managing and displaying toast messages in the application.
+ *
+ * @component
+ * @param {Object} props - The properties of the ToastProvider component.
+ * @param {React.ReactNode} props.children - The child components to be wrapped by the provider.
+ * @returns {JSX.Element} The ToastProvider component.
+ */
+export function ToastProvider({ children }) {
+  const { toast, isVisible, type, message } = useToast();
   return (
     <ToastContext.Provider value={toast}>
       {children}
