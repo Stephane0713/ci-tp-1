@@ -67,11 +67,11 @@ describe("Form tests suite", () => {
       (f) => {
         render(<App />);
 
-        const lastName = screen.getByTestId("nom");
+        const lastName = screen.getByTestId("lastName");
         fireEvent.change(lastName, { target: { value: f[0] } });
         fireEvent.blur(lastName);
 
-        const firstName = screen.getByTestId("prenom");
+        const firstName = screen.getByTestId("firstName");
         fireEvent.change(firstName, { target: { value: f[1] } });
         fireEvent.blur(firstName);
 
@@ -79,15 +79,15 @@ describe("Form tests suite", () => {
         fireEvent.change(email, { target: { value: f[2] } });
         fireEvent.blur(email);
 
-        const birth = screen.getByTestId("date_de_naissance");
+        const birth = screen.getByTestId("birth");
         fireEvent.change(birth, { target: { value: f[3] } });
         fireEvent.blur(birth);
 
-        const city = screen.getByTestId("ville");
+        const city = screen.getByTestId("city");
         fireEvent.change(city, { target: { value: f[4] } });
         fireEvent.blur(city);
 
-        const zip = screen.getByTestId("code_postal");
+        const zip = screen.getByTestId("zip");
         fireEvent.change(zip, { target: { value: f[5] } });
         fireEvent.blur(zip);
 
@@ -108,38 +108,38 @@ describe("Form tests suite", () => {
       render(<App />);
 
       const fieldValues = {
-        nom: "Dupré",
-        prenom: "Stéphane",
+        lastName: "Dupré",
+        firstName: "Stéphane",
         email: "stephane@email.com",
-        date_de_naissance: "01/01/1999",
-        ville: "Antibes",
-        code_postal: "06600",
+        birth: "01/01/1999",
+        city: "Antibes",
+        zip: "06600",
       };
 
-      const lastName = screen.getByTestId("nom");
-      fireEvent.change(lastName, { target: { value: fieldValues.nom } });
+      const lastName = screen.getByTestId("lastName");
+      fireEvent.change(lastName, { target: { value: fieldValues.lastName } });
       fireEvent.blur(lastName);
 
-      const firstName = screen.getByTestId("prenom");
-      fireEvent.change(firstName, { target: { value: fieldValues.prenom } });
+      const firstName = screen.getByTestId("firstName");
+      fireEvent.change(firstName, { target: { value: fieldValues.firstName } });
       fireEvent.blur(firstName);
 
       const email = screen.getByTestId("email");
       fireEvent.change(email, { target: { value: fieldValues.email } });
       fireEvent.blur(email);
 
-      const birth = screen.getByTestId("date_de_naissance");
+      const birth = screen.getByTestId("birth");
       fireEvent.change(birth, {
-        target: { value: fieldValues.date_de_naissance },
+        target: { value: fieldValues.birth },
       });
       fireEvent.blur(birth);
 
-      const city = screen.getByTestId("ville");
-      fireEvent.change(city, { target: { value: fieldValues.ville } });
+      const city = screen.getByTestId("city");
+      fireEvent.change(city, { target: { value: fieldValues.city } });
       fireEvent.blur(city);
 
-      const zip = screen.getByTestId("code_postal");
-      fireEvent.change(zip, { target: { value: fieldValues.code_postal } });
+      const zip = screen.getByTestId("zip");
+      fireEvent.change(zip, { target: { value: fieldValues.zip } });
       fireEvent.blur(zip);
 
       const btn = screen.getByRole("button");

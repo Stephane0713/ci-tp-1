@@ -6,10 +6,21 @@ import {
   isValidName,
   isValidZipCode,
 } from "../helpers/validation";
-import { toSnakeCase } from "../helpers/toSnakeCase";
 import { ToastContext } from "./Toast";
 import { calculateAge } from "../helpers/calculateAge";
 
+/**
+ * Custom hook for managing the state of a form field with validation.
+ *
+ * @function
+ * @param {Function} validationFn - The validation function for the field's value.
+ * @param {string} [initialValue=""] - The initial value for the field.
+ * @returns {Object} An object containing the state and methods for the form field.
+ * @property {string} value - The current value of the form field.
+ * @property {Function} setValue - Function to set the value of the form field.
+ * @property {boolean} hasError - A boolean indicating whether the field has a validation error.
+ * @property {Function} validate - Function to trigger validation and update the error state.
+ */
 function useField(validationFn, initialValue = "") {
   const [value, setValue] = useState(initialValue);
   const [hasError, setError] = useState(false);
@@ -29,17 +40,18 @@ function useField(validationFn, initialValue = "") {
  */
 export default function Form() {
   const fields = [
-    { label: "Nom", field: useField(isValidName) },
-    { label: "Prénom", field: useField(isValidName) },
-    { label: "Email", field: useField(isValidEmail) },
+    { id: "lastName", label: "Nom", field: useField(isValidName) },
+    { id: "firstName", label: "Prénom", field: useField(isValidName) },
+    { id: "email", label: "Email", field: useField(isValidEmail) },
     {
+      id: "birth",
       label: "Date de naissance",
       field: useField(
         (v) => isValidDate(v) && isMajor(calculateAge({ birth: new Date(v) }))
       ),
     },
-    { label: "Ville", field: useField(isValidName) },
-    { label: "Code postal", field: useField(isValidZipCode) },
+    { id: "city", label: "Ville", field: useField(isValidName) },
+    { id: "zip", label: "Code postal", field: useField(isValidZipCode) },
   ];
 
   const canSubmit = () => {
@@ -67,8 +79,8 @@ export default function Form() {
       localStorage.setItem(
         "user",
         JSON.stringify(
-          fields.reduce((acc, val, idx) => {
-            const key = toSnakeCase(val.label);
+          fields.reduce((acc, val) => {
+            const key = val.id;
             const fieldValue = val.field.value;
             return { ...acc, [key]: fieldValue };
           }, {})
@@ -91,9 +103,10 @@ export default function Form() {
         onSubmit={handleSubmit}
         className="border-b border-gray-900/10 p-12 pb-24 shadow-sm rounded-sm  gap-4 flex flex-col"
       >
-        {fields.map(({ label, field }) => (
+        {fields.map(({ id, label, field }) => (
           <TextField
-            key={label}
+            key={id}
+            id={id}
             label={label}
             value={field.value}
             {...{
@@ -118,22 +131,30 @@ export default function Form() {
   );
 }
 
-const TextField = ({ label, message = "", ...inputProps }) => {
-  const formattedLabel = toSnakeCase(label);
-
+/**
+ * Functional component for a text input field with an optional label and error message.
+ *
+ * @component
+ * @param {Object} props - The properties of the TextField component.
+ * @param {string} props.label - The label for the text input.
+ * @param {string} [props.message=""] - The error message to display (if any).
+ * @param {Object} inputProps - Additional properties to be spread on the input element.
+ * @returns {JSX.Element} The TextField component.
+ */
+const TextField = ({ id, label, message = "", ...inputProps }) => {
   return (
     <div>
       <label
-        htmlFor={formattedLabel}
+        htmlFor={id}
         className="block font-semibold leading-6 text-gray-900 mb-2"
       >
         {label}
       </label>
       <input
         {...inputProps}
-        data-testid={formattedLabel}
+        data-testid={id}
         type="text"
-        id={formattedLabel}
+        id={id}
         className="block w-full rounded-sm border-0 py-1.5 px-4 text-sm ring-1 ring-inset ring-gray-400"
       />
       {message !== "" && <div className="text-xs text-red-600">{message}</div>}

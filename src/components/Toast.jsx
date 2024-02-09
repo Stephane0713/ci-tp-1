@@ -1,7 +1,20 @@
 import React, { createContext, useState } from "react";
 
+/**
+ * Context for managing toast messages.
+ *
+ * @type {React.Context<Function>}
+ */
 export const ToastContext = createContext();
 
+/**
+ * Provides a context for managing and displaying toast messages in the application.
+ *
+ * @component
+ * @param {Object} props - The properties of the ToastProvider component.
+ * @param {React.ReactNode} props.children - The child components to be wrapped by the provider.
+ * @returns {JSX.Element} The ToastProvider component.
+ */
 export function ToastProvider({ children }) {
   const [type, setType] = useState();
   const [message, setMessage] = useState();
