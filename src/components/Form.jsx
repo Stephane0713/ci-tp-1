@@ -86,6 +86,7 @@ export default function Form() {
           }, {})
         )
       );
+      fields.forEach(({ field }) => field.setValue(""));
       toast("Le compte a bien été enregistré");
       return;
     }

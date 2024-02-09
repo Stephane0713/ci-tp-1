@@ -133,12 +133,19 @@ describe("Form tests suite", () => {
     fireEvent.blur(zip);
 
     const btn = screen.getByRole("button");
-    fireEvent(btn, new MouseEvent("click", { bubbles: true }));
     expect(btn).not.toHaveAttribute("disabled");
+
+    fireEvent(btn, new MouseEvent("click", { bubbles: true }));
 
     const toast = screen.getByTestId("toast");
     expect(toast).toHaveClass("bg-blue-600");
     expect(toast).toHaveTextContent(/Le compte a bien été enregistré/);
     expect(JSON.parse(localStorage.getItem("user"))).toMatchObject(fieldValues);
+    expect(lastName).toHaveValue("");
+    expect(firstName).toHaveValue("");
+    expect(email).toHaveValue("");
+    expect(birth).toHaveValue("");
+    expect(city).toHaveValue("");
+    expect(zip).toHaveValue("");
   });
 });
