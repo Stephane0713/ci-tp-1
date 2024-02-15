@@ -46,9 +46,19 @@ export default function Form() {
     {
       id: "birth",
       label: "Date de naissance",
-      field: useField(
-        (v) => isValidDate(v) && isMajor(calculateAge({ birth: new Date(v) }))
-      ),
+      field: useField((v) => {
+        try {
+          const formatted = `
+          ${v.substring(3, 5)}/${v.substring(0, 2)}/${v.substring(6, 10)}
+          `;
+          return (
+            isValidDate(v) &&
+            isMajor(calculateAge({ birth: new Date(formatted) }))
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }),
     },
     { id: "city", label: "Ville", field: useField(isValidName) },
     { id: "zip", label: "Code postal", field: useField(isValidZipCode) },
