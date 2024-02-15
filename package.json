@@ -20,7 +20,9 @@
     "test": "react-scripts test",
     "coverage": "react-scripts test --coverage --watchAll",
     "eject": "react-scripts eject",
-    "jsdoc": "jsdoc -c ./jsdoc.config.json -r -d ./docs"
+    "jsdoc": "jsdoc -c ./jsdoc.config.json -r -d ./docs",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -44,6 +46,7 @@
     "@babel/preset-env": "^7.23.9",
     "@testing-library/dom": "^9.3.4",
     "babel-jest": "^29.7.0",
+    "gh-pages": "^6.1.1",
     "jest": "^27.5.1",
     "jsdoc": "^4.0.2",
     "react-test-renderer": "^18.2.0",
