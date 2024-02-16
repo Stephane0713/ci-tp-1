@@ -38,6 +38,9 @@ jobs:
         uses: codecov/codecov-action@v4.0.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Generate jsdoc
+        run: npm run jsdoc
         
   deploy: 
     environment:
@@ -49,8 +52,6 @@ jobs:
       id-token: write
     needs: build_test
     steps: 
-      - name: Generate jsdoc
-        run: npm run jsdoc
       - name: Deploy to Github Pages
         id: deployment
         uses: actions/deploy-pages@v2
