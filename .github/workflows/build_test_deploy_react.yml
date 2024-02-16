@@ -50,9 +50,7 @@ jobs:
     needs: build_test
     steps: 
       - name: Generate jsdoc
-        run: |
-          npm ci
-          npm run jsdoc
+        run: npm run jsdoc
       - name: Deploy to Github Pages
         id: deployment
         uses: actions/deploy-pages@v2
