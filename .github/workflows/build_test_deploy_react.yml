@@ -23,8 +23,8 @@ jobs:
 
       - name: Set Git Identity
         run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "stephaned2205@gmail.com"
+          git config --global user.name "Stephane0713"
       
       - name: npm ci, build and test
         run: |
