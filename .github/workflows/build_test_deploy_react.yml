@@ -20,11 +20,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Set Git Identity
-        run: |
-          git config --global user.email "stephaned2205@gmail.com"
-          git config --global user.name "Stephane0713"
       
       - name: npm ci, build and test
         run: |
@@ -35,7 +30,8 @@ jobs:
 
       - name: Updated version
         run: |
-          npm version prerelease --preid=test
+          git tag v0.1.0-${{github.run_id}}${{github.run_number}}${{github.run_attempt}}
+          npm version from-git --allow-same-version
       
       - name: Setup pages
         id: pages
