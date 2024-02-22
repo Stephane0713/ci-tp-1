@@ -36,7 +36,6 @@ jobs:
       - name: Updated version
         run: |
           npm version prerelease --preid=test
-          npm publish --tag alpha
       
       - name: Setup pages
         id: pages
