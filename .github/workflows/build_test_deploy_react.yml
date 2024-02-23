@@ -6,54 +6,64 @@ on:
   pull_request:
     branches: [main]
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_test:
+    permissions: # Job-level permissions configuration starts here
+      contents: write # 'write' access to repository contents
+      pull-requests: write # 'write' access to pull requests
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [21.x]
+        node-version: [20.x]
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
-      - name: Use node.js {{ matrix.node-version }}
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      - name: npm ci and test
+        run: |
+          npm ci
+          npm test
 
-      - name: Config user
+      - name: Set env
+        run: |
+          npm i -g semver
+          echo "GITHUB_VERSION_BUILD=$(echo $(semver 0.1.1 -i prerelease --preid ${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}))" >> $GITHUB_ENV
+      - name: Update versionning
         run: |
           git config --global user.email "stephaned2205@gmail.com"
           git config --global user.name "Stephane0713"
-      
-      - name: npm ci, build and test
+          npm version ${{env.GITHUB_VERSION_BUILD}}
+          echo ${{env.GITHUB_VERSION_BUILD}} >> README.md
+          git commit -a -m "new version ${{env.GITHUB_VERSION_BUILD}}"
+      - name: Build and docs
         run: |
-          npm ci
           npm run jsdoc
           npm run build --if-present
-          npm test
-
-      - name: Updated version
-        run: |
-          git tag v0.1.0-${{github.run_id}}${{github.run_number}}${{github.run_attempt}}
-          npm version from-git --allow-same-version
-      
-      - name: Setup pages
+      - name: Push changes
+        run: git push
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
+          # Upload entire repository
           path: build
           if-no-files-found: error
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-        
-  deploy: 
+  deploy:
     environment:
       name: github-pages
       url: ${{steps.deployment.outputs.page_url}}
@@ -62,7 +72,7 @@ jobs:
       pages: write
       id-token: write
     needs: build_test
-    steps: 
+    steps:
       - name: Deploy to Github Pages
         id: deployment
         uses: actions/deploy-pages@v2
